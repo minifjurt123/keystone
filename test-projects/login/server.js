@@ -12,18 +12,14 @@ keystone
     // NOTE: This is only for test purposes and should not be used in production
     const users = await keystone.lists.User.adapter.findAll();
     if (!users.length) {
-      Object.values(keystone.adapters).forEach(async adapter => {
-        await adapter.dropDatabase();
-      });
+      await keystone.adapter.dropDatabase();
       await keystone.createItems(initialData);
     }
 
     const app = express();
 
     app.get('/reset-db', async (req, res) => {
-      Object.values(keystone.adapters).forEach(async adapter => {
-        await adapter.dropDatabase();
-      });
+      await keystone.adapter.dropDatabase();
       await keystone.createItems(initialData);
       res.redirect('/admin');
     });

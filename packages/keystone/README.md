@@ -13,12 +13,10 @@ const { Keystone } = require('@keystonejs/keystone');
 
 const keystone = new Keystone({
   adapter,
-  adapters,
   appVersion,
   cookie,
   cookieSecret,
   defaultAccess,
-  defaultAdapter,
   onConnect,
   queryLimits,
   sessionStore,
@@ -89,12 +87,6 @@ _**Default:**_
 
 Default list and field access. See the [Access Control](https://www.keystonejs.com/api/access-control#defaults) page for more details.
 
-### `defaultAdapter`
-
-_**Default:**_ `undefined`
-
-The name of the database adapter to use by default if multiple are provided.
-
 ### `onConnect`
 
 _**Default:**_ `undefined`
@@ -140,17 +132,17 @@ _**Default:**_ `['public']`
 
 ## Methods
 
-| Method                | Description                                                                  |
-| --------------------- | ---------------------------------------------------------------------------- |
-| `connect`             | Manually connect to Adapters.                                                |
-| `createAuthStrategy`  | Creates a new authentication middleware instance.                            |
-| `createItems`         | Add items to a `Keystone` list.                                              |
-| `createList`          | Add a list to the `Keystone` schema.                                         |
-| `disconnect`          | Disconnect from all adapters.                                                |
-| `extendGraphQLSchema` | Extend keystones generated schema with custom types, queries, and mutations. |
-| `prepare`             | Manually prepare `Keystone` middlewares.                                     |
-| `createContext`       | Create a `context` object that can be used with `executeGraphQL()`.          |
-| `executeGraphQL`      | Execute a server-side GraphQL operation within the given context.            |
+| Method                | Description                                                                            |
+| --------------------- | -------------------------------------------------------------------------------------- |
+| `connect`             | Manually connect to Adapter.                                                           |
+| `createAuthStrategy`  | Creates a new authentication middleware instance.                                      |
+| `createItems`         | Add items to a `Keystone` list.                                                        |
+| `createList`          | Add a list to the `Keystone` schema.                                                   |
+| `disconnect`          | Disconnect from the adapter.                                                           |
+| `extendGraphQLSchema` | Extend keystones generated schema with custom types, queries, and mutations.           |
+| `prepare`             | Manually prepare `Keystone` middlewares.                                               |
+| `createContext`       | Create a `context` object that can be used with `executeGraphQL()`.                    |
+| `executeGraphQL`      | Execute a server-side GraphQL operation within the given context.                      |
 
 <!--
 ## Super secret methods
@@ -169,7 +161,7 @@ Please note: We use these internally but provide no support or assurance if used
 
 ### `connect()`
 
-Manually connect Keystone to the adapters. See [Custom Server](https://keystonejs.com/guides/custom-server).
+Manually connect Keystone to the adapter. See [Custom Server](https://keystonejs.com/guides/custom-server).
 
 ```javascript allowCopy=false showLanguage=false
 keystone.connect();
@@ -252,7 +244,7 @@ keystone.createList('Posts', {...});
 
 ### `disconnect()`
 
-Disconnect all adapters.
+Disconnect the adapter.
 
 ### `extendGraphQLSchema(config)`
 
