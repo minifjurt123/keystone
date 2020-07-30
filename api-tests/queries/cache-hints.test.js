@@ -4,6 +4,7 @@ const {
   setupServer,
   networkedGraphqlRequest,
 } = require('@keystonejs/test-utils');
+const { createItem } = require('@keystonejs/server-side-graphql-client');
 
 function setupKeystone(adapterName) {
   return setupServer({
@@ -91,10 +92,13 @@ const addFixtures = async create => {
   ]);
 
   const posts = await Promise.all([
-    create('Post', { author: [users[0].id], title: 'One author' }),
-    create('Post', { author: [users[0].id, users[1].id], title: 'Two authors' }),
+    create('Post', { author: { connect: [{ id: users[0].id }] }, title: 'One author' }),
     create('Post', {
-      author: [users[0].id, users[1].id, users[2].id],
+      author: { connect: [{ id: users[0].id }, { id: users[1].id }] },
+      title: 'Two authors',
+    }),
+    create('Post', {
+      author: { connect: [{ id: users[0].id }, { id: users[1].id }, { id: users[2].id }] },
       title: 'Three authors',
     }),
   ]);
@@ -107,7 +111,8 @@ multiAdapterRunners().map(({ runner, adapterName }) =>
     describe('cache hints', () => {
       test(
         'users',
-        runner(setupKeystone, async ({ app, create }) => {
+        runner(setupKeystone, async ({ keystone, app }) => {
+          const create = async (listKey, item) => createItem({ keystone, listKey, item });
           await addFixtures(create);
 
           // Basic query
@@ -213,7 +218,8 @@ multiAdapterRunners().map(({ runner, adapterName }) =>
 
       test(
         'posts',
-        runner(setupKeystone, async ({ app, create }) => {
+        runner(setupKeystone, async ({ keystone, app }) => {
+          const create = async (listKey, item) => createItem({ keystone, listKey, item });
           await addFixtures(create);
           // The Post list has a static cache hint
 
