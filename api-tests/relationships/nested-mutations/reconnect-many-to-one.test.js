@@ -1,6 +1,6 @@
 const { Text, Relationship } = require('@keystonejs/fields');
 const { multiAdapterRunners, setupServer, graphqlRequest } = require('@keystonejs/test-utils');
-const { createItem } = require('@keystonejs/server-side-graphql-client');
+const { createItems } = require('@keystonejs/server-side-graphql-client');
 
 function setupKeystone(adapterName) {
   return setupServer({
@@ -30,10 +30,16 @@ multiAdapterRunners().map(({ runner, adapterName }) =>
         'Reconnect from the many side',
         runner(setupKeystone, async ({ keystone }) => {
           // Create some notes
-          const noteA = await createItem({ keystone, listKey: 'Note', item: { title: 'A' } });
-          const noteB = await createItem({ keystone, listKey: 'Note', item: { title: 'B' } });
-          const noteC = await createItem({ keystone, listKey: 'Note', item: { title: 'C' } });
-          const noteD = await createItem({ keystone, listKey: 'Note', item: { title: 'D' } });
+          const [noteA, noteB, noteC, noteD] = await createItems({
+            keystone,
+            listKey: 'Note',
+            items: [
+              { data: { title: 'A' } },
+              { data: { title: 'B' } },
+              { data: { title: 'C' } },
+              { data: { title: 'D' } },
+            ],
+          });
 
           // Create some users that does the linking
           const { data: alice, errors } = await graphqlRequest({
