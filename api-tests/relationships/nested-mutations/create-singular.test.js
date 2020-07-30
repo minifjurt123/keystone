@@ -6,6 +6,7 @@ const {
   graphqlRequest,
   authedGraphqlRequest,
 } = require('@keystonejs/test-utils');
+const { getItem } = require('@keystonejs/server-side-graphql-client');
 
 function setupKeystone(adapterName) {
   return setupServer({
@@ -243,7 +244,7 @@ multiAdapterRunners().map(({ runner, adapterName }) =>
           if (group.allowed) {
             test(
               'does not throw error when creating nested within create mutation',
-              runner(setupKeystone, async ({ keystone, findOne, findById }) => {
+              runner(setupKeystone, async ({ keystone }) => {
                 const groupName = sampleOne(gen.alphaNumString.notEmpty());
 
                 // Create an item that does the nested create
@@ -267,19 +268,22 @@ multiAdapterRunners().map(({ runner, adapterName }) =>
                 });
 
                 // See that it actually stored the group ID on the Event record
-                const event = await findOne(`EventTo${group.name}`, { title: 'A thing' });
+                const event = await getItem({
+                  keystone,
+                  listKey: `EventTo${group.name}`,
+                  itemId: data[`createEventTo${group.name}`].id,
+                  returnFields: 'id group { id name }',
+                  context: keystone.createContext({ schemaName: 'internal' }),
+                });
                 expect(event).toBeTruthy();
                 expect(event.group).toBeTruthy();
-
-                const _group = await findById(group.name, event.group);
-                expect(_group).toBeTruthy();
-                expect(_group.name).toBe(groupName);
+                expect(event.group.name).toBe(groupName);
               })
             );
 
             test(
               'does not throw error when creating nested within update mutation',
-              runner(setupKeystone, async ({ keystone, create, findOne, findById }) => {
+              runner(setupKeystone, async ({ keystone, create }) => {
                 const groupName = sampleOne(gen.alphaNumString.notEmpty());
 
                 // Create an item to update
@@ -309,13 +313,16 @@ multiAdapterRunners().map(({ runner, adapterName }) =>
                 });
 
                 // See that it actually stored the group ID on the Event record
-                const event = await findOne(`EventTo${group.name}`, { title: 'A thing' });
+                const event = await getItem({
+                  keystone,
+                  listKey: `EventTo${group.name}`,
+                  itemId: data[`updateEventTo${group.name}`].id,
+                  returnFields: 'id group { id name }',
+                  context: keystone.createContext({ schemaName: 'internal' }),
+                });
                 expect(event).toBeTruthy();
                 expect(event.group).toBeTruthy();
-
-                const _group = await findById(group.name, event.group);
-                expect(_group).toBeTruthy();
-                expect(_group.name).toBe(groupName);
+                expect(event.group.name).toBe(groupName);
               })
             );
           } else {

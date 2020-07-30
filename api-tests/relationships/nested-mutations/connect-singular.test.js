@@ -6,6 +6,7 @@ const {
   graphqlRequest,
   authedGraphqlRequest,
 } = require('@keystonejs/test-utils');
+const { getItem } = require('@keystonejs/server-side-graphql-client');
 
 function setupKeystone(adapterName) {
   return setupServer({
@@ -303,7 +304,7 @@ multiAdapterRunners().map(({ runner, adapterName }) =>
             );
             test(
               'does not throw error when linking nested within update mutation',
-              runner(setupKeystone, async ({ keystone, create, findOne, findById }) => {
+              runner(setupKeystone, async ({ keystone, create }) => {
                 const groupName = sampleOne(gen.alphaNumString.notEmpty());
 
                 // Create an item to link against
@@ -348,13 +349,15 @@ multiAdapterRunners().map(({ runner, adapterName }) =>
                 expect(errors).toBe(undefined);
 
                 // See that it actually stored the group ID on the Event record
-                const event = await findOne(`EventTo${group.name}`, { title: 'A thing' });
+                const event = await getItem({
+                  keystone,
+                  listKey: `EventTo${group.name}`,
+                  itemId: data[`updateEventTo${group.name}`].id,
+                  returnFields: 'id group { id name }',
+                });
                 expect(event).toBeTruthy();
                 expect(event.group).toBeTruthy();
-
-                const _group = await findById(group.name, event.group);
-                expect(_group).toBeTruthy();
-                expect(_group.name).toBe(groupName);
+                expect(event.group.name).toBe(groupName);
               })
             );
           } else {
