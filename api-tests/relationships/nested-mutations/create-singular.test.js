@@ -6,6 +6,7 @@ const {
   graphqlRequest,
   authedGraphqlRequest,
 } = require('@keystonejs/test-utils');
+const { createItem } = require('@keystonejs/server-side-graphql-client');
 
 function setupKeystone(adapterName) {
   return setupServer({
@@ -168,11 +169,15 @@ multiAdapterRunners().map(({ runner, adapterName }) =>
 
       test(
         'create nested from within update mutation',
-        runner(setupKeystone, async ({ keystone, create }) => {
+        runner(setupKeystone, async ({ keystone }) => {
           const groupName = sampleOne(gen.alphaNumString.notEmpty());
 
           // Create an item to update
-          const createEvent = await create('Event', { title: 'A thing' });
+          const createEvent = await createItem({
+            keystone,
+            listKey: 'Event',
+            item: { title: 'A thing' },
+          });
 
           // Update an item that does the nested create
           const { data, errors } = await graphqlRequest({
@@ -279,11 +284,15 @@ multiAdapterRunners().map(({ runner, adapterName }) =>
 
             test(
               'does not throw error when creating nested within update mutation',
-              runner(setupKeystone, async ({ keystone, create, findOne, findById }) => {
+              runner(setupKeystone, async ({ keystone, findOne, findById }) => {
                 const groupName = sampleOne(gen.alphaNumString.notEmpty());
 
                 // Create an item to update
-                const eventModel = await create(`EventTo${group.name}`, { title: 'A thing' });
+                const eventModel = await createItem({
+                  keystone,
+                  listKey: `EventTo${group.name}`,
+                  item: { title: 'A thing' },
+                });
 
                 // Update an item that does the nested create
                 const { data, errors } = await authedGraphqlRequest({
@@ -390,11 +399,15 @@ multiAdapterRunners().map(({ runner, adapterName }) =>
 
             test(
               'throws error when creating nested within update mutation',
-              runner(setupKeystone, async ({ keystone, create }) => {
+              runner(setupKeystone, async ({ keystone }) => {
                 const groupName = sampleOne(gen.alphaNumString.notEmpty());
 
                 // Create an item to update
-                const eventModel = await create(`EventTo${group.name}`, { title: 'A thing' });
+                const eventModel = await createItem({
+                  keystone,
+                  listKey: `EventTo${group.name}`,
+                  item: { title: 'A thing' },
+                });
 
                 // Update an item that does the nested create
                 const { data, errors } = await authedGraphqlRequest({

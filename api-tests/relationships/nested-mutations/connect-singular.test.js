@@ -6,6 +6,7 @@ const {
   graphqlRequest,
   authedGraphqlRequest,
 } = require('@keystonejs/test-utils');
+const { createItem } = require('@keystonejs/server-side-graphql-client');
 
 function setupKeystone(adapterName) {
   return setupServer({
@@ -111,11 +112,15 @@ multiAdapterRunners().map(({ runner, adapterName }) =>
     describe('no access control', () => {
       test(
         'link nested from within create mutation',
-        runner(setupKeystone, async ({ keystone, create }) => {
+        runner(setupKeystone, async ({ keystone }) => {
           const groupName = sampleOne(gen.alphaNumString.notEmpty());
 
           // Create an item to link against
-          const createGroup = await create('Group', { name: groupName });
+          const createGroup = await createItem({
+            keystone,
+            listKey: 'Group',
+            item: { name: groupName },
+          });
 
           // Create an item that does the linking
           const { data, errors } = await graphqlRequest({
@@ -139,11 +144,15 @@ multiAdapterRunners().map(({ runner, adapterName }) =>
 
       test(
         'link nested from within update mutation',
-        runner(setupKeystone, async ({ keystone, create }) => {
+        runner(setupKeystone, async ({ keystone }) => {
           const groupName = sampleOne(gen.alphaNumString.notEmpty());
 
           // Create an item to link against
-          const createGroup = await create('Group', { name: groupName });
+          const createGroup = await createItem({
+            keystone,
+            listKey: 'Group',
+            item: { name: groupName },
+          });
 
           // Create an item to update
           const {
@@ -222,11 +231,11 @@ multiAdapterRunners().map(({ runner, adapterName }) =>
 
       test(
         'errors if connecting an item which cannot be found during update',
-        runner(setupKeystone, async ({ keystone, create }) => {
+        runner(setupKeystone, async ({ keystone }) => {
           const FAKE_ID = adapterName === 'mongoose' ? '5b84f38256d3c2df59a0d9bf' : 100;
 
           // Create an item to link against
-          const createEvent = await create('Event', {});
+          const createEvent = await createItem({ keystone, listKey: 'Event', item: {} });
 
           // Create an item that does the linking
           const { errors } = await graphqlRequest({
@@ -269,12 +278,17 @@ multiAdapterRunners().map(({ runner, adapterName }) =>
           if (group.allowed) {
             test(
               'does not throw error when linking nested within create mutation',
-              runner(setupKeystone, async ({ keystone, create }) => {
+              runner(setupKeystone, async ({ keystone }) => {
                 const groupName = sampleOne(gen.alphaNumString.notEmpty());
 
                 // Create an item to link against
                 // We can't use the graphQL query here (it's `create: () => false`)
-                const { id } = await create(group.name, { name: groupName });
+                const { id } = await createItem({
+                  keystone,
+                  listKey: group.name,
+                  item: { name: groupName },
+                  context: keystone.createContext({ schemaName: 'internal' }),
+                });
                 expect(id).toBeTruthy();
 
                 // Create an item that does the linking
@@ -303,15 +317,24 @@ multiAdapterRunners().map(({ runner, adapterName }) =>
             );
             test(
               'does not throw error when linking nested within update mutation',
-              runner(setupKeystone, async ({ keystone, create, findOne, findById }) => {
+              runner(setupKeystone, async ({ keystone, findOne, findById }) => {
                 const groupName = sampleOne(gen.alphaNumString.notEmpty());
 
                 // Create an item to link against
-                const groupModel = await create(group.name, { name: groupName });
+                const groupModel = await createItem({
+                  keystone,
+                  listKey: group.name,
+                  item: { name: groupName },
+                  context: keystone.createContext({ schemaName: 'internal' }),
+                });
                 expect(groupModel.id).toBeTruthy();
 
                 // Create an item to update
-                const eventModel = await create(`EventTo${group.name}`, { title: 'A Thing' });
+                const eventModel = await createItem({
+                  keystone,
+                  listKey: `EventTo${group.name}`,
+                  item: { title: 'A Thing' },
+                });
                 expect(eventModel.id).toBeTruthy();
 
                 // Update the item and link the relationship field
@@ -360,15 +383,23 @@ multiAdapterRunners().map(({ runner, adapterName }) =>
           } else {
             test(
               'throws error when linking nested within update mutation',
-              runner(setupKeystone, async ({ keystone, create }) => {
+              runner(setupKeystone, async ({ keystone }) => {
                 const groupName = sampleOne(gen.alphaNumString.notEmpty());
 
                 // Create an item to link against
-                const groupModel = await create(group.name, { name: groupName });
+                const groupModel = await createItem({
+                  keystone,
+                  listKey: group.name,
+                  item: { name: groupName },
+                });
                 expect(groupModel.id).toBeTruthy();
 
                 // Create an item to update
-                const eventModel = await create(`EventTo${group.name}`, { title: 'A thing' });
+                const eventModel = await createItem({
+                  keystone,
+                  listKey: `EventTo${group.name}`,
+                  item: { title: 'A thing' },
+                });
                 expect(eventModel.id).toBeTruthy();
 
                 // Update the item and link the relationship field
@@ -400,11 +431,15 @@ multiAdapterRunners().map(({ runner, adapterName }) =>
 
             test(
               'throws error when linking nested within create mutation',
-              runner(setupKeystone, async ({ keystone, create }) => {
+              runner(setupKeystone, async ({ keystone }) => {
                 const groupName = sampleOne(gen.alphaNumString.notEmpty());
 
                 // Create an item to link against
-                const { id } = await create(group.name, { name: groupName });
+                const { id } = await createItem({
+                  keystone,
+                  listKey: group.name,
+                  item: { name: groupName },
+                });
                 expect(id).toBeTruthy();
 
                 // Create an item that does the linking

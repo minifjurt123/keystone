@@ -6,6 +6,7 @@ const {
   graphqlRequest,
   authedGraphqlRequest,
 } = require('@keystonejs/test-utils');
+const { createItem } = require('@keystonejs/server-side-graphql-client');
 
 const alphanumGenerator = gen.alphaNumString.notEmpty();
 
@@ -183,13 +184,17 @@ multiAdapterRunners().map(({ runner, adapterName }) =>
 
       test(
         'create nested from within update mutation',
-        runner(setupKeystone, async ({ keystone, create }) => {
+        runner(setupKeystone, async ({ keystone }) => {
           const noteContent = `a${sampleOne(alphanumGenerator)}`;
           const noteContent2 = `b${sampleOne(alphanumGenerator)}`;
           const noteContent3 = `c${sampleOne(alphanumGenerator)}`;
 
           // Create an item to update
-          const createUser = await create('User', { username: 'A thing' });
+          const createUser = await createItem({
+            keystone,
+            listKey: 'User',
+            item: { username: 'A thing' },
+          });
 
           // Update an item that does the nested create
           const { data, errors } = await graphqlRequest({
@@ -354,12 +359,14 @@ multiAdapterRunners().map(({ runner, adapterName }) =>
 
         test(
           'does not throw when create nested from within update mutation',
-          runner(setupKeystone, async ({ keystone, create }) => {
+          runner(setupKeystone, async ({ keystone }) => {
             const noteContent = sampleOne(alphanumGenerator);
 
             // Create an item to update
-            const createUser = await create('UserToNotesNoRead', {
-              username: 'A thing',
+            const createUser = await createItem({
+              keystone,
+              listKey: 'UserToNotesNoRead',
+              item: { username: 'A thing' },
             });
 
             // Update an item that does the nested create
@@ -443,12 +450,14 @@ multiAdapterRunners().map(({ runner, adapterName }) =>
 
         test(
           'throws error when creating nested within update mutation',
-          runner(setupKeystone, async ({ keystone, create }) => {
+          runner(setupKeystone, async ({ keystone }) => {
             const noteContent = sampleOne(alphanumGenerator);
 
             // Create an item to update
-            const createUserToNotesNoCreate = await create('UserToNotesNoCreate', {
-              username: 'A thing',
+            const createUserToNotesNoCreate = await createItem({
+              keystone,
+              listKey: 'UserToNotesNoCreate',
+              item: { username: 'A thing' },
             });
 
             // Update an item that does the nested create

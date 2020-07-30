@@ -316,7 +316,8 @@ multiAdapterRunners().map(({ runner, adapterName }) =>
 
       test(
         'mutations',
-        runner(setupKeystone, async ({ app, create }) => {
+        runner(setupKeystone, async ({ keystone, app }) => {
+          const create = async (listKey, item) => createItem({ keystone, listKey, item });
           const { posts } = await addFixtures(create);
 
           // Mutation responses shouldn't be cached.
@@ -341,7 +342,8 @@ multiAdapterRunners().map(({ runner, adapterName }) =>
 
       test(
         'extendGraphQLSchemaQueries',
-        runner(setupKeystone, async ({ app, create }) => {
+        runner(setupKeystone, async ({ keystone, app }) => {
+          const create = async (listKey, item) => createItem({ keystone, listKey, item });
           await addFixtures(create);
 
           // Basic query
@@ -365,7 +367,8 @@ multiAdapterRunners().map(({ runner, adapterName }) =>
 
       test(
         'extendGraphQLSchemaMutations',
-        runner(setupKeystone, async ({ app, create }) => {
+        runner(setupKeystone, async ({ keystone, app }) => {
+          const create = async (listKey, item) => createItem({ keystone, listKey, item });
           await addFixtures(create);
 
           // Mutation responses shouldn't be cached.

@@ -1,5 +1,6 @@
 const { Text, Relationship } = require('@keystonejs/fields');
 const { multiAdapterRunners, setupServer, graphqlRequest } = require('@keystonejs/test-utils');
+const { createItem } = require('@keystonejs/server-side-graphql-client');
 
 function setupKeystone(adapterName) {
   return setupServer({
@@ -31,17 +32,31 @@ multiAdapterRunners().map(({ runner, adapterName }) =>
     describe('relationship filtering', () => {
       test(
         'nested to-many relationships can be filtered',
-        runner(setupKeystone, async ({ keystone, create }) => {
+        runner(setupKeystone, async ({ keystone }) => {
           const ids = [];
 
-          ids.push((await create('Post', { content: 'Hello world' })).id);
-          ids.push((await create('Post', { content: 'hi world' })).id);
-          ids.push((await create('Post', { content: 'Hello? Or hi?' })).id);
+          ids.push(
+            (await createItem({ keystone, listKey: 'Post', item: { content: 'Hello world' } })).id
+          );
+          ids.push(
+            (await createItem({ keystone, listKey: 'Post', item: { content: 'hi world' } })).id
+          );
+          ids.push(
+            (await createItem({ keystone, listKey: 'Post', item: { content: 'Hello? Or hi?' } })).id
+          );
 
-          const user = await create('User', { posts: ids });
+          const user = await createItem({
+            keystone,
+            listKey: 'User',
+            item: { posts: { connect: ids.map(id => ({ id })) } },
+          });
 
           // Create a dummy user to make sure we're actually filtering it out
-          const user2 = await create('User', { posts: [ids[0]] });
+          const user2 = await createItem({
+            keystone,
+            listKey: 'User',
+            item: { posts: { connect: [{ id: ids[0] }] } },
+          });
 
           const { data, errors } = await graphqlRequest({
             keystone,
@@ -75,17 +90,31 @@ multiAdapterRunners().map(({ runner, adapterName }) =>
 
       test(
         'nested to-many relationships can be limited',
-        runner(setupKeystone, async ({ keystone, create }) => {
+        runner(setupKeystone, async ({ keystone }) => {
           const ids = [];
 
-          ids.push((await create('Post', { content: 'A hello world' })).id);
-          ids.push((await create('Post', { content: 'hi world' })).id);
-          ids.push((await create('Post', { content: 'Hello? Or hi?' })).id);
+          ids.push(
+            (await createItem({ keystone, listKey: 'Post', item: { content: 'A hello world' } })).id
+          );
+          ids.push(
+            (await createItem({ keystone, listKey: 'Post', item: { content: 'hi world' } })).id
+          );
+          ids.push(
+            (await createItem({ keystone, listKey: 'Post', item: { content: 'Hello? Or hi?' } })).id
+          );
 
-          const user = await create('User', { posts: ids });
+          const user = await createItem({
+            keystone,
+            listKey: 'User',
+            item: { posts: { connect: ids.map(id => ({ id })) } },
+          });
 
           // Create a dummy user to make sure we're actually filtering it out
-          const user2 = await create('User', { posts: [ids[0]] });
+          const user2 = await createItem({
+            keystone,
+            listKey: 'User',
+            item: { posts: { connect: [{ id: ids[0] }] } },
+          });
 
           const { data, errors } = await graphqlRequest({
             keystone,
@@ -122,17 +151,31 @@ multiAdapterRunners().map(({ runner, adapterName }) =>
 
       test(
         'nested to-many relationships can be filtered within AND clause',
-        runner(setupKeystone, async ({ keystone, create }) => {
+        runner(setupKeystone, async ({ keystone }) => {
           const ids = [];
 
-          ids.push((await create('Post', { content: 'Hello world' })).id);
-          ids.push((await create('Post', { content: 'hi world' })).id);
-          ids.push((await create('Post', { content: 'Hello? Or hi?' })).id);
+          ids.push(
+            (await createItem({ keystone, listKey: 'Post', item: { content: 'Hello world' } })).id
+          );
+          ids.push(
+            (await createItem({ keystone, listKey: 'Post', item: { content: 'hi world' } })).id
+          );
+          ids.push(
+            (await createItem({ keystone, listKey: 'Post', item: { content: 'Hello? Or hi?' } })).id
+          );
 
-          const user = await create('User', { posts: ids });
+          const user = await createItem({
+            keystone,
+            listKey: 'User',
+            item: { posts: { connect: ids.map(id => ({ id })) } },
+          });
 
           // Create a dummy user to make sure we're actually filtering it out
-          const user2 = await create('User', { posts: [ids[0]] });
+          const user2 = await createItem({
+            keystone,
+            listKey: 'User',
+            item: { posts: { connect: [{ id: ids[0] }] } },
+          });
 
           const { data, errors } = await graphqlRequest({
             keystone,
@@ -174,17 +217,31 @@ multiAdapterRunners().map(({ runner, adapterName }) =>
 
       test(
         'nested to-many relationships can be filtered within OR clause',
-        runner(setupKeystone, async ({ keystone, create }) => {
+        runner(setupKeystone, async ({ keystone }) => {
           const ids = [];
 
-          ids.push((await create('Post', { content: 'Hello world' })).id);
-          ids.push((await create('Post', { content: 'hi world' })).id);
-          ids.push((await create('Post', { content: 'Hello? Or hi?' })).id);
+          ids.push(
+            (await createItem({ keystone, listKey: 'Post', item: { content: 'Hello world' } })).id
+          );
+          ids.push(
+            (await createItem({ keystone, listKey: 'Post', item: { content: 'hi world' } })).id
+          );
+          ids.push(
+            (await createItem({ keystone, listKey: 'Post', item: { content: 'Hello? Or hi?' } })).id
+          );
 
-          const user = await create('User', { posts: ids });
+          const user = await createItem({
+            keystone,
+            listKey: 'User',
+            item: { posts: { connect: ids.map(id => ({ id })) } },
+          });
 
           // Create a dummy user to make sure we're actually filtering it out
-          const user2 = await create('User', { posts: [ids[0]] });
+          const user2 = await createItem({
+            keystone,
+            listKey: 'User',
+            item: { posts: { connect: [{ id: ids[0] }] } },
+          });
 
           const { data, errors } = await graphqlRequest({
             keystone,
@@ -231,8 +288,8 @@ multiAdapterRunners().map(({ runner, adapterName }) =>
 
       test(
         'Filtering out all items by nested field should return []',
-        runner(setupKeystone, async ({ keystone, create }) => {
-          await create('User', {});
+        runner(setupKeystone, async ({ keystone }) => {
+          await createItem({ keystone, listKey: 'User', item: {} });
 
           const result = await graphqlRequest({
             keystone,
@@ -255,17 +312,31 @@ multiAdapterRunners().map(({ runner, adapterName }) =>
     describe('relationship meta filtering', () => {
       test(
         'nested to-many relationships return meta info',
-        runner(setupKeystone, async ({ keystone, create }) => {
+        runner(setupKeystone, async ({ keystone }) => {
           const ids = [];
 
-          ids.push((await create('Post', { content: 'Hello world' })).id);
-          ids.push((await create('Post', { content: 'hi world' })).id);
-          ids.push((await create('Post', { content: 'Hello? Or hi?' })).id);
+          ids.push(
+            (await createItem({ keystone, listKey: 'Post', item: { content: 'Hello world' } })).id
+          );
+          ids.push(
+            (await createItem({ keystone, listKey: 'Post', item: { content: 'hi world' } })).id
+          );
+          ids.push(
+            (await createItem({ keystone, listKey: 'Post', item: { content: 'Hello? Or hi?' } })).id
+          );
 
-          const user = await create('User', { posts: ids });
+          const user = await createItem({
+            keystone,
+            listKey: 'User',
+            item: { posts: { connect: ids.map(id => ({ id })) } },
+          });
 
           // Create a dummy user to make sure we're actually filtering it out
-          const user2 = await create('User', { posts: [ids[0]] });
+          const user2 = await createItem({
+            keystone,
+            listKey: 'User',
+            item: { posts: { connect: [{ id: ids[0] }] } },
+          });
 
           const { data, errors } = await graphqlRequest({
             keystone,
@@ -301,17 +372,31 @@ multiAdapterRunners().map(({ runner, adapterName }) =>
 
       test(
         'nested to-many relationship meta can be filtered',
-        runner(setupKeystone, async ({ keystone, create }) => {
+        runner(setupKeystone, async ({ keystone }) => {
           const ids = [];
 
-          ids.push((await create('Post', { content: 'Hello world' })).id);
-          ids.push((await create('Post', { content: 'hi world' })).id);
-          ids.push((await create('Post', { content: 'Hello? Or hi?' })).id);
+          ids.push(
+            (await createItem({ keystone, listKey: 'Post', item: { content: 'Hello world' } })).id
+          );
+          ids.push(
+            (await createItem({ keystone, listKey: 'Post', item: { content: 'hi world' } })).id
+          );
+          ids.push(
+            (await createItem({ keystone, listKey: 'Post', item: { content: 'Hello? Or hi?' } })).id
+          );
 
-          const user = await create('User', { posts: ids });
+          const user = await createItem({
+            keystone,
+            listKey: 'User',
+            item: { posts: { connect: ids.map(id => ({ id })) } },
+          });
 
           // Create a dummy user to make sure we're actually filtering it out
-          const user2 = await create('User', { posts: [ids[0]] });
+          const user2 = await createItem({
+            keystone,
+            listKey: 'User',
+            item: { posts: { connect: [{ id: ids[0] }] } },
+          });
 
           const { data, errors } = await graphqlRequest({
             keystone,
@@ -349,17 +434,31 @@ multiAdapterRunners().map(({ runner, adapterName }) =>
 
       test(
         'nested to-many relationship meta can be limited',
-        runner(setupKeystone, async ({ keystone, create }) => {
+        runner(setupKeystone, async ({ keystone }) => {
           const ids = [];
 
-          ids.push((await create('Post', { content: 'Hello world' })).id);
-          ids.push((await create('Post', { content: 'hi world' })).id);
-          ids.push((await create('Post', { content: 'Hello? Or hi?' })).id);
+          ids.push(
+            (await createItem({ keystone, listKey: 'Post', item: { content: 'Hello world' } })).id
+          );
+          ids.push(
+            (await createItem({ keystone, listKey: 'Post', item: { content: 'hi world' } })).id
+          );
+          ids.push(
+            (await createItem({ keystone, listKey: 'Post', item: { content: 'Hello? Or hi?' } })).id
+          );
 
-          const user = await create('User', { posts: ids });
+          const user = await createItem({
+            keystone,
+            listKey: 'User',
+            item: { posts: { connect: ids.map(id => ({ id })) } },
+          });
 
           // Create a dummy user to make sure we're actually filtering it out
-          const user2 = await create('User', { posts: [ids[0]] });
+          const user2 = await createItem({
+            keystone,
+            listKey: 'User',
+            item: { posts: { connect: [{ id: ids[0] }] } },
+          });
 
           const { data, errors } = await graphqlRequest({
             keystone,
@@ -395,17 +494,31 @@ multiAdapterRunners().map(({ runner, adapterName }) =>
 
       test(
         'nested to-many relationship meta can be filtered within AND clause',
-        runner(setupKeystone, async ({ keystone, create }) => {
+        runner(setupKeystone, async ({ keystone }) => {
           const ids = [];
 
-          ids.push((await create('Post', { content: 'Hello world' })).id);
-          ids.push((await create('Post', { content: 'hi world' })).id);
-          ids.push((await create('Post', { content: 'Hello? Or hi?' })).id);
+          ids.push(
+            (await createItem({ keystone, listKey: 'Post', item: { content: 'Hello world' } })).id
+          );
+          ids.push(
+            (await createItem({ keystone, listKey: 'Post', item: { content: 'hi world' } })).id
+          );
+          ids.push(
+            (await createItem({ keystone, listKey: 'Post', item: { content: 'Hello? Or hi?' } })).id
+          );
 
-          const user = await create('User', { posts: ids });
+          const user = await createItem({
+            keystone,
+            listKey: 'User',
+            item: { posts: { connect: ids.map(id => ({ id })) } },
+          });
 
           // Create a dummy user to make sure we're actually filtering it out
-          const user2 = await create('User', { posts: [ids[0]] });
+          const user2 = await createItem({
+            keystone,
+            listKey: 'User',
+            item: { posts: { connect: [{ id: ids[0] }] } },
+          });
 
           const { data, errors } = await graphqlRequest({
             keystone,
@@ -446,17 +559,31 @@ multiAdapterRunners().map(({ runner, adapterName }) =>
 
       test(
         'nested to-many relationship meta can be filtered within OR clause',
-        runner(setupKeystone, async ({ keystone, create }) => {
+        runner(setupKeystone, async ({ keystone }) => {
           const ids = [];
 
-          ids.push((await create('Post', { content: 'Hello world' })).id);
-          ids.push((await create('Post', { content: 'hi world' })).id);
-          ids.push((await create('Post', { content: 'Hello? Or hi?' })).id);
+          ids.push(
+            (await createItem({ keystone, listKey: 'Post', item: { content: 'Hello world' } })).id
+          );
+          ids.push(
+            (await createItem({ keystone, listKey: 'Post', item: { content: 'hi world' } })).id
+          );
+          ids.push(
+            (await createItem({ keystone, listKey: 'Post', item: { content: 'Hello? Or hi?' } })).id
+          );
 
-          const user = await create('User', { posts: ids });
+          const user = await createItem({
+            keystone,
+            listKey: 'User',
+            item: { posts: { connect: ids.map(id => ({ id })) } },
+          });
 
           // Create a dummy user to make sure we're actually filtering it out
-          const user2 = await create('User', { posts: [ids[0]] });
+          const user2 = await createItem({
+            keystone,
+            listKey: 'User',
+            item: { posts: { connect: [{ id: ids[0] }] } },
+          });
 
           const { data, errors } = await graphqlRequest({
             keystone,

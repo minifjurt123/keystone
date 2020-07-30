@@ -186,7 +186,7 @@ multiAdapterRunners().map(({ runner, adapterName }) =>
 
       test(
         'Does not get clobbered when updating unrelated field',
-        runner(setupKeystone, async ({ keystone, create }) => {
+        runner(setupKeystone, async ({ keystone }) => {
           const postedAt = '2018-08-31T06:49:07.000Z';
           const title = 'Hello world';
 
